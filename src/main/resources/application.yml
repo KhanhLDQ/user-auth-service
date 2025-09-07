@@ -17,6 +17,8 @@ spring:
     enabled: true #run flyway on startup
     locations: classpath:db/migration
     validate-on-migrate: true #validate checksum of applied migrations - fails if files were changed after being applied
+  main:
+    banner-mode: off
 
 server:
   port: 8080
