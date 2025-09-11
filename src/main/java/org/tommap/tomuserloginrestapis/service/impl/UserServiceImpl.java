@@ -1,6 +1,7 @@
 package org.tommap.tomuserloginrestapis.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.tommap.tomuserloginrestapis.mapper.UserMapper;
 import org.tommap.tomuserloginrestapis.model.dto.UserDto;
@@ -14,6 +15,7 @@ public class UserServiceImpl implements IUserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final UserUtils userUtils;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDto createUser(UserDto userDto) {
@@ -21,8 +23,7 @@ public class UserServiceImpl implements IUserService {
             throw new RuntimeException(String.format("User already existed - email: %s", userDto.getEmail()));
         }
 
-        //hard code first
-        userDto.setEncryptedPassword("encrypted_test_pw");
+        userDto.setEncryptedPassword(passwordEncoder.encode(userDto.getPassword()));
         userDto.setUserId(userUtils.generateUserId());
 
         var savedUser = userRepository.save(userMapper.userDtoToUserEntity(userDto));

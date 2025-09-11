@@ -29,3 +29,4 @@ logging:
   level:
     org.tommap.tomuserloginrestapis: debug
     org.hibernate.orm.jdbc.bind: trace
+    org.springframework.security: debug
