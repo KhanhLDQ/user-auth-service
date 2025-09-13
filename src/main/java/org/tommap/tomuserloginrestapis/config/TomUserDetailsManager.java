@@ -18,7 +18,9 @@ public class TomUserDetailsManager implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         var user = userRepository.findByEmail(username)
-                .orElseThrow(() -> new RuntimeException(String.format("User %s not found", username)));
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("User %s not found", username)));
+
+        //TODO: perform granted authorities
 
         return new User(username, user.getEncryptedPassword(), List.of());
     }

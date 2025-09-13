@@ -1,6 +1,8 @@
 package org.tommap.tomuserloginrestapis.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,8 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.tommap.tomuserloginrestapis.mapper.UserMapper;
 import org.tommap.tomuserloginrestapis.model.request.UserDetailsRequest;
+import org.tommap.tomuserloginrestapis.model.response.ApiResponse;
 import org.tommap.tomuserloginrestapis.model.response.UserRest;
 import org.tommap.tomuserloginrestapis.service.IUserService;
+
+import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -26,9 +31,14 @@ public class UserController {
     }
 
     @PostMapping
-    public UserRest createUser(@RequestBody UserDetailsRequest request) {
+    public ResponseEntity<ApiResponse<UserRest>> createUser(@RequestBody @Valid UserDetailsRequest request) {
         var userDto = userService.createUser(userMapper.requestToUserDto(request));
-        return userMapper.userDtoToResponse(userDto);
+        var userRest = userMapper.userDtoToResponse(userDto);
+
+        return ResponseEntity.status(CREATED)
+                .body(
+                    ApiResponse.created("User created successfully", userRest)
+                );
     }
 
     @PutMapping
