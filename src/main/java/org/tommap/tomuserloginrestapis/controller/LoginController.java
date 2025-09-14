@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.tommap.tomuserloginrestapis.model.request.UserLoginRequest;
 import org.tommap.tomuserloginrestapis.model.response.ApiResponse;
 import org.tommap.tomuserloginrestapis.model.response.UserLoginResponse;
+import org.tommap.tomuserloginrestapis.service.IUserService;
 import org.tommap.tomuserloginrestapis.shared.JwtUtils;
 
 import static org.springframework.http.HttpStatus.OK;
@@ -23,6 +24,7 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 public class LoginController {
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
+    private final IUserService userService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<UserLoginResponse>> login(
@@ -33,6 +35,7 @@ public class LoginController {
                     new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
             );
             var jwt = jwtUtils.generateJwtToken(authentication);
+            var user = userService.getByUsername(authentication.getName());
 
             return ResponseEntity.status(OK)
                     .body(ApiResponse.ok(
@@ -40,6 +43,7 @@ public class LoginController {
                             UserLoginResponse.builder()
                                     .jwt(jwt)
                                     .username(authentication.getName())
+                                    .userId(user.getUserId())
                                     .build())
                     );
         } catch (Exception ex) {

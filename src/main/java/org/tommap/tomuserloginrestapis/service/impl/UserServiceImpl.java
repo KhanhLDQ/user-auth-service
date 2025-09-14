@@ -29,4 +29,12 @@ public class UserServiceImpl implements IUserService {
         var savedUser = userRepository.save(userMapper.userDtoToUserEntity(userDto));
         return userMapper.userEntityToUserDto(savedUser);
     }
+
+    @Override
+    public UserDto getByUsername(String username) {
+        var user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException(String.format("User %s not found", username)));
+
+        return userMapper.userEntityToUserDto(user);
+    }
 }

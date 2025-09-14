@@ -8,4 +8,5 @@ import lombok.Getter;
 public class UserLoginResponse {
     private String jwt;
     private String username;
+    private String userId;
 }
