@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,9 +26,14 @@ public class UserController {
     private final IUserService userService;
     private final UserMapper userMapper;
 
-    @GetMapping
-    public String getUserDetails() {
-        return "get user details was called";
+    @GetMapping("/{userId}")
+    public ResponseEntity<ApiResponse<UserRest>> getUserDetails(@PathVariable(name = "userId") String userId) {
+        var userDto = userService.getByUserId(userId);
+        var userRest = userMapper.userDtoToResponse(userDto);
+
+        return ResponseEntity.ok(
+                ApiResponse.ok("Get user details successfully", userRest)
+        );
     }
 
     @PostMapping

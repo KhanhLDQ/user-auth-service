@@ -37,4 +37,12 @@ public class UserServiceImpl implements IUserService {
 
         return userMapper.userEntityToUserDto(user);
     }
+
+    @Override
+    public UserDto getByUserId(String userId) {
+        var user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException(String.format("User %s not found", userId)));
+
+        return userMapper.userEntityToUserDto(user);
+    }
 }
