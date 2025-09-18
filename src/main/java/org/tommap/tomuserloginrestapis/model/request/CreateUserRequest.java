@@ -12,7 +12,7 @@ import org.tommap.tomuserloginrestapis.validation.SecuredPassword;
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDetailsRequest {
+public class CreateUserRequest {
     @NotBlank(message = "first name should not be blank!")
     @Size(max = 10, message = "first name should not be more than 10 characters!")
     private String firstName;

@@ -27,8 +27,8 @@ public class UserServiceImpl implements IUserService {
 
         userDto.setEncryptedPassword(passwordEncoder.encode(userDto.getPassword()));
         userDto.setUserId(userUtils.generateUserId());
-
         var savedUser = userRepository.save(userMapper.userDtoToUserEntity(userDto));
+
         return userMapper.userEntityToUserDto(savedUser);
     }
 
@@ -46,5 +46,16 @@ public class UserServiceImpl implements IUserService {
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("User %s not found", userId)));
 
         return userMapper.userEntityToUserDto(user);
+    }
+
+    @Override
+    public UserDto updateUser(String userId, UserDto userDto) {
+        var user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("User %s not found", userId)));
+
+        userMapper.updateUserEntityFromUserDto(userDto, user);
+        var updatedUser = userRepository.save(user);
+
+        return userMapper.userEntityToUserDto(updatedUser);
     }
 }
