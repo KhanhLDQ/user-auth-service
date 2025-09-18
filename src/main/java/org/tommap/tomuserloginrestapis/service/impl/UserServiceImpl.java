@@ -58,4 +58,12 @@ public class UserServiceImpl implements IUserService {
 
         return userMapper.userEntityToUserDto(updatedUser);
     }
+
+    @Override
+    public void deleteUser(String userId) {
+        var user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("User %s not found", userId)));
+
+        userRepository.delete(user);
+    }
 }
