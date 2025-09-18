@@ -3,6 +3,8 @@ package org.tommap.tomuserloginrestapis.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.tommap.tomuserloginrestapis.exception.ResourceAlreadyExistedException;
+import org.tommap.tomuserloginrestapis.exception.ResourceNotFoundException;
 import org.tommap.tomuserloginrestapis.mapper.UserMapper;
 import org.tommap.tomuserloginrestapis.model.dto.UserDto;
 import org.tommap.tomuserloginrestapis.repository.UserRepository;
@@ -20,7 +22,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public UserDto createUser(UserDto userDto) {
         if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
-            throw new RuntimeException(String.format("User already existed - email: %s", userDto.getEmail()));
+            throw new ResourceAlreadyExistedException(String.format("User already existed - email: %s", userDto.getEmail()));
         }
 
         userDto.setEncryptedPassword(passwordEncoder.encode(userDto.getPassword()));
@@ -33,7 +35,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public UserDto getByUsername(String username) {
         var user = userRepository.findByEmail(username)
-                .orElseThrow(() -> new RuntimeException(String.format("User %s not found", username)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("User %s not found", username)));
 
         return userMapper.userEntityToUserDto(user);
     }
@@ -41,7 +43,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public UserDto getByUserId(String userId) {
         var user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException(String.format("User %s not found", userId)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("User %s not found", userId)));
 
         return userMapper.userEntityToUserDto(user);
     }

@@ -23,7 +23,6 @@ import static org.springframework.http.HttpStatus.CREATED;
 @RestController
 @RequestMapping(
     path = "/api/v1/users",
-    consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
     produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE} //restrict to JSON/XML only - no other formats
 )
 @RequiredArgsConstructor
@@ -41,7 +40,7 @@ public class UserController {
         );
     }
 
-    @PostMapping
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<ApiResponse<UserRest>> createUser(@RequestBody @Valid UserDetailsRequest request) {
         var userDto = userService.createUser(userMapper.requestToUserDto(request));
         var userRest = userMapper.userDtoToResponse(userDto);
