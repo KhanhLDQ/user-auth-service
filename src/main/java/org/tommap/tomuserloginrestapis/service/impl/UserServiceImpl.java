@@ -1,15 +1,23 @@
 package org.tommap.tomuserloginrestapis.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.tommap.tomuserloginrestapis.exception.ResourceAlreadyExistedException;
 import org.tommap.tomuserloginrestapis.exception.ResourceNotFoundException;
 import org.tommap.tomuserloginrestapis.mapper.UserMapper;
 import org.tommap.tomuserloginrestapis.model.dto.UserDto;
+import org.tommap.tomuserloginrestapis.model.entity.User;
 import org.tommap.tomuserloginrestapis.repository.UserRepository;
 import org.tommap.tomuserloginrestapis.service.IUserService;
 import org.tommap.tomuserloginrestapis.shared.UserUtils;
+
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 @RequiredArgsConstructor
@@ -65,5 +73,16 @@ public class UserServiceImpl implements IUserService {
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("User %s not found", userId)));
 
         userRepository.delete(user);
+    }
+
+    @Override
+    public Page<UserDto> getUsers(int page, int size, String sortBy, String sortDir) {
+        Sort.Direction sortDirection = sortDir.equalsIgnoreCase("desc") ? DESC : ASC;
+        Sort sort = Sort.by(sortDirection, sortBy);
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<User> users = userRepository.findAll(pageable);
+
+        return users.map(userMapper::userEntityToUserDto);
     }
 }

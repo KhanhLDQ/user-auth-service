@@ -2,6 +2,7 @@ package org.tommap.tomuserloginrestapis.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,15 +12,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.tommap.tomuserloginrestapis.mapper.UserMapper;
+import org.tommap.tomuserloginrestapis.model.dto.UserDto;
 import org.tommap.tomuserloginrestapis.model.request.CreateUserRequest;
 import org.tommap.tomuserloginrestapis.model.request.UpdateUserRequest;
 import org.tommap.tomuserloginrestapis.model.response.ApiResponse;
+import org.tommap.tomuserloginrestapis.model.response.PageResult;
 import org.tommap.tomuserloginrestapis.model.response.UserRest;
 import org.tommap.tomuserloginrestapis.service.IUserService;
 
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.tommap.tomuserloginrestapis.model.response.PageResult.PageInfo;
 
 @RestController
 @RequestMapping(
@@ -30,6 +35,33 @@ import static org.springframework.http.HttpStatus.CREATED;
 public class UserController {
     private final IUserService userService;
     private final UserMapper userMapper;
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<PageResult<UserRest>>> getUsers(
+        @RequestParam(name = "page", defaultValue = "0") int page,
+        @RequestParam(name = "size", defaultValue = "2") int size,
+        @RequestParam(name = "sortBy", defaultValue = "id") String sortBy,
+        @RequestParam(name = "sortDir", defaultValue = "desc") String sortDir
+    ) {
+        Page<UserDto> users = userService.getUsers(page, size, sortBy, sortDir);
+        Page<UserRest> userRests = users.map(userMapper::userDtoToResponse);
+
+        var response = PageResult.<UserRest>builder()
+                .content(userRests.getContent())
+                .pageInfo(PageInfo.builder()
+                        .currentPage(userRests.getNumber())
+                        .numOfElements(userRests.getNumberOfElements())
+                        .pageSize(userRests.getSize())
+                        .totalPages(userRests.getTotalPages())
+                        .totalElements(userRests.getTotalElements())
+                        .hasPrevious(userRests.hasPrevious())
+                        .hasNext(userRests.hasNext())
+                        .build()
+                )
+                .build();
+
+        return ResponseEntity.ok(ApiResponse.ok("Get users successfully", response));
+    }
 
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserRest>> getUserDetails(@PathVariable(name = "userId") String userId) {

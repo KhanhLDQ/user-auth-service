@@ -1,5 +1,6 @@
 package org.tommap.tomuserloginrestapis.service;
 
+import org.springframework.data.domain.Page;
 import org.tommap.tomuserloginrestapis.model.dto.UserDto;
 
 public interface IUserService {
@@ -8,4 +9,5 @@ public interface IUserService {
     UserDto getByUserId(String userId);
     UserDto updateUser(String userId, UserDto userDto);
     void deleteUser(String userId);
+    Page<UserDto> getUsers(int page, int size, String sortBy, String sortDir);
 }
