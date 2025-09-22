@@ -23,6 +23,8 @@ import org.tommap.tomuserloginrestapis.model.response.PageResult;
 import org.tommap.tomuserloginrestapis.model.response.UserRest;
 import org.tommap.tomuserloginrestapis.service.IUserService;
 
+import java.util.List;
+
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.tommap.tomuserloginrestapis.model.response.PageResult.PageInfo;
 
@@ -77,6 +79,18 @@ public class UserController {
         return ResponseEntity.ok(
                 ApiResponse.ok("Get user details successfully", userRest)
         );
+    }
+
+    @GetMapping("/{userId}/addresses")
+    public ResponseEntity<ApiResponse<List<UserRest.AddressRest>>> getUserAddresses(
+        @PathVariable("userId") String userId
+    ) {
+        var addressDtos = userService.getUserAddresses(userId);
+        var addressRests = addressDtos.stream()
+                .map(userMapper::addressDtoToResponse)
+                .toList();
+
+        return ResponseEntity.ok(ApiResponse.ok("Get user addresses successfully", addressRests));
     }
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})

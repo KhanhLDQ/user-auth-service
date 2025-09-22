@@ -30,6 +30,8 @@ public interface UserMapper {
 
     UserRest userDtoToResponse(UserDto userDto);
 
+    UserRest.AddressRest addressDtoToResponse(AddressDto addressDto);
+
     User userDtoToUserEntity(UserDto userDto);
 
     @Mapping(target = "type", expression = "java(AddressType.fromValue(addressDto.getType()))")

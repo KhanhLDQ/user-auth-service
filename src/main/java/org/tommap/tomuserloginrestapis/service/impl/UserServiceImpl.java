@@ -10,11 +10,14 @@ import org.springframework.stereotype.Service;
 import org.tommap.tomuserloginrestapis.exception.ResourceAlreadyExistedException;
 import org.tommap.tomuserloginrestapis.exception.ResourceNotFoundException;
 import org.tommap.tomuserloginrestapis.mapper.UserMapper;
+import org.tommap.tomuserloginrestapis.model.dto.AddressDto;
 import org.tommap.tomuserloginrestapis.model.dto.UserDto;
 import org.tommap.tomuserloginrestapis.model.entity.User;
 import org.tommap.tomuserloginrestapis.repository.UserRepository;
 import org.tommap.tomuserloginrestapis.service.IUserService;
 import org.tommap.tomuserloginrestapis.shared.UserUtils;
+
+import java.util.List;
 
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -84,5 +87,15 @@ public class UserServiceImpl implements IUserService {
         Page<User> users = userRepository.findAll(pageable);
 
         return users.map(userMapper::userEntityToUserDto); //user.getAddresses() -> lead to N+1 problem -> 1 user query & 1 count user query & N address queries
+    }
+
+    @Override
+    public List<AddressDto> getUserAddresses(String userId) {
+        var user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("User %s not found", userId)));
+
+        return user.getAddresses().stream()
+                .map(userMapper::addressEntityToAddressDto)
+                .toList();
     }
 }
