@@ -50,4 +50,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(BAD_REQUEST)
                 .body(ApiResponse.error(BAD_REQUEST.value(), errors));
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ApiResponse<Void> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ApiResponse.error(BAD_REQUEST.value(), ex.getMessage());
+    }
 }

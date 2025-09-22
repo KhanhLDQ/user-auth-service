@@ -26,6 +26,12 @@ import org.tommap.tomuserloginrestapis.service.IUserService;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.tommap.tomuserloginrestapis.model.response.PageResult.PageInfo;
 
+/*
+    - each endpoint should represent a specific resource
+    - separate into two kinds of endpoints
+        + [/users] | [/users/{userId}]
+        + [/users/{userId}/addresses] | [/users/{userId}/addresses/{addressId}]
+ */
 @RestController
 @RequestMapping(
     path = "/api/v1/users",

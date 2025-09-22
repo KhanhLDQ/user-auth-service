@@ -83,6 +83,6 @@ public class UserServiceImpl implements IUserService {
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<User> users = userRepository.findAll(pageable);
 
-        return users.map(userMapper::userEntityToUserDto);
+        return users.map(userMapper::userEntityToUserDto); //user.getAddresses() -> lead to N+1 problem -> 1 user query & 1 count user query & N address queries
     }
 }

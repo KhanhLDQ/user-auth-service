@@ -5,12 +5,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.tommap.tomuserloginrestapis.model.dto.AddressDto;
 import org.tommap.tomuserloginrestapis.model.dto.UserDto;
+import org.tommap.tomuserloginrestapis.model.entity.Address;
 import org.tommap.tomuserloginrestapis.model.entity.User;
 import org.tommap.tomuserloginrestapis.model.request.CreateUserRequest;
 import org.tommap.tomuserloginrestapis.model.request.UpdateUserRequest;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.tommap.tomuserloginrestapis.model.entity.AddressType.BILLING;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {UserMapperImpl.class})
@@ -21,16 +26,22 @@ public class UserMapperTest {
     @Test
     void testCreateUserRequestToUserDto_ShouldReturnUserDto() {
         //arrange
-        var request = new CreateUserRequest("Tom", "SE", "tom@gmail.com", "123456");
+        var addressRequest = new CreateUserRequest.CreateAddressRequest("Da Nang", "Vietnam", "123 Hai Phong str", "550000", "billing");
+        var request = new CreateUserRequest("Tom", "SE", "tom@gmail.com", "123456", List.of(addressRequest));
 
         //act
         var userDto = userMapper.createUserRequestToUserDto(request);
 
         //assert
         assertThat(userDto).isNotNull();
+        assertThat(userDto.getAddresses()).isNotEmpty();
+
         assertThat(userDto)
                 .extracting("firstName", "lastName", "email", "password")
                 .containsExactly("Tom", "SE", "tom@gmail.com", "123456");
+        assertThat(userDto.getAddresses().get(0))
+                .extracting("city", "country", "street", "postalCode", "type")
+                .containsExactly("Da Nang", "Vietnam", "123 Hai Phong str", "550000", "billing");
     }
 
     @Test
@@ -69,7 +80,8 @@ public class UserMapperTest {
     @Test
     void testUserDtoToResponse_ShouldReturnUserRest() {
         //arrange
-        var userDto = new UserDto(1L, "user-abc-xyz", "Tom", "SE", "tom@gmail.com", "123456", "encrypted_123456", "email_token", true);
+        var addressDto = new AddressDto(1L, "Da Nang", "Vietnam", "123 Hai Phong str", "550000", "billing");
+        var userDto = new UserDto(1L, "user-abc-xyz", "Tom", "SE", "tom@gmail.com", "123456", "encrypted_123456", "email_token", true, List.of(addressDto));
 
         //act
         var userRest = userMapper.userDtoToResponse(userDto);
@@ -79,6 +91,11 @@ public class UserMapperTest {
         assertThat(userRest)
                 .extracting("userId", "firstName", "lastName", "email")
                 .containsExactly("user-abc-xyz", "Tom", "SE", "tom@gmail.com");
+
+        assertThat(userRest.getAddresses()).isNotEmpty();
+        assertThat(userRest.getAddresses().get(0))
+                .extracting("city", "country", "street", "postalCode", "type")
+                .containsExactly("Da Nang", "Vietnam", "123 Hai Phong str", "550000", "billing");
     }
 
     @Test
@@ -93,7 +110,8 @@ public class UserMapperTest {
     @Test
     void testUserDtoToUserEntity_ShouldReturnUserEntity() {
         //arrange
-        var userDto = new UserDto(1L, "user-abc-xyz", "Tom", "SE", "tom@gmail.com", "123456", "encrypted_123456", "email_token", true);
+        var addressDto = new AddressDto(1L, "Da Nang", "Vietnam", "123 Hai Phong str", "550000", "billing");
+        var userDto = new UserDto(1L, "user-abc-xyz", "Tom", "SE", "tom@gmail.com", "123456", "encrypted_123456", "email_token", true, List.of(addressDto));
 
         //act
         var user = userMapper.userDtoToUserEntity(userDto);
@@ -103,12 +121,18 @@ public class UserMapperTest {
         assertThat(user)
                 .extracting("id", "userId", "firstName", "lastName", "email", "encryptedPassword", "emailVerificationToken", "emailVerificationStatus")
                 .containsExactly(1L, "user-abc-xyz", "Tom", "SE", "tom@gmail.com", "encrypted_123456", "email_token", true);
+
+        assertThat(user.getAddresses()).isNotEmpty();
+        assertThat(user.getAddresses().get(0))
+                .extracting("city", "country", "street", "postalCode", "type")
+                .containsExactly("Da Nang", "Vietnam", "123 Hai Phong str", "550000", BILLING);
     }
 
     @Test
     void testUserEntityToUserDto_ShouldReturnUserDto() {
         //arrange
-        var user = new User(1L, "user-abc-xyz", "Tom", "SE", "tom@gmail.com", "encrypted_123456", "email_token", true);
+        var address = new Address(1L, "Da Nang", "Vietnam", "123 Hai Phong str", "550000", BILLING);
+        var user = new User(1L, "user-abc-xyz", "Tom", "SE", "tom@gmail.com", "encrypted_123456", "email_token", true, List.of(address));
 
         //act
         var userDto = userMapper.userEntityToUserDto(user);
@@ -119,12 +143,18 @@ public class UserMapperTest {
         assertThat(userDto)
                 .extracting("id", "userId", "firstName", "lastName", "email", "encryptedPassword", "emailVerificationToken", "emailVerificationStatus")
                 .containsExactly(1L, "user-abc-xyz", "Tom", "SE", "tom@gmail.com", "encrypted_123456", "email_token", true);
+
+        assertThat(userDto.getAddresses()).isNotEmpty();
+        assertThat(userDto.getAddresses().get(0))
+                .extracting("city", "country", "street", "postalCode", "type")
+                .containsExactly("Da Nang", "Vietnam", "123 Hai Phong str", "550000", "BILLING");
     }
 
     @Test
     void testUpdateUserEntityFromUserDto() {
         //arrange
-        var user = new User(1L, "user-id", "Tom", "SE", "tom@gmail.com", "encrypted_pw_123456", "email_verified_token", true);
+        var address = new Address(1L, "Da Nang", "Vietnam", "123 Hai Phong str", "550000", BILLING);
+        var user = new User(1L, "user-id", "Tom", "SE", "tom@gmail.com", "encrypted_pw_123456", "email_verified_token", true, List.of(address));
         var userDto = new UserDto();
         userDto.setFirstName("Khanh");
         userDto.setLastName("Le");

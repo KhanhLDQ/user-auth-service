@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,5 +19,6 @@ public class UserDto {
     private String password;
     private String encryptedPassword;
     private String emailVerificationToken;
-    private boolean emailVerificationStatus;
+    private boolean emailVerificationStatus = false;
+    private List<AddressDto> addresses;
 }
