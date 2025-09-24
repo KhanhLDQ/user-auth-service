@@ -72,6 +72,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public UserDto updateUser(String userId, UserDto userDto) {
         var user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("User %s not found", userId)));
@@ -83,6 +84,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public void deleteUser(String userId) {
         var user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("User %s not found", userId)));
@@ -112,6 +114,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public boolean verifyEmailToken(String token) {
         var userOptional = userRepository.findByEmailVerificationToken(token);
 
@@ -138,6 +141,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public void resendEmailVerification(String email) {
         var user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("User %s not found", email)));
