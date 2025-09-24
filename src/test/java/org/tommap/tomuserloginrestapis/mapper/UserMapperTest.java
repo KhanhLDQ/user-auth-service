@@ -81,7 +81,7 @@ public class UserMapperTest {
     void testUserDtoToResponse_ShouldReturnUserRest() {
         //arrange
         var addressDto = new AddressDto(1L, "Da Nang", "Vietnam", "123 Hai Phong str", "550000", "billing");
-        var userDto = new UserDto(1L, "user-abc-xyz", "Tom", "SE", "tom@gmail.com", "123456", "encrypted_123456", "email_token", true, List.of(addressDto));
+        var userDto = new UserDto(1L, "user-abc-xyz", "Tom", "SE", "tom@gmail.com", "123456", "encrypted_123456", "email_token", true, null, List.of(addressDto));
 
         //act
         var userRest = userMapper.userDtoToResponse(userDto);
@@ -111,7 +111,7 @@ public class UserMapperTest {
     void testUserDtoToUserEntity_ShouldReturnUserEntity() {
         //arrange
         var addressDto = new AddressDto(1L, "Da Nang", "Vietnam", "123 Hai Phong str", "550000", "billing");
-        var userDto = new UserDto(1L, "user-abc-xyz", "Tom", "SE", "tom@gmail.com", "123456", "encrypted_123456", "email_token", true, List.of(addressDto));
+        var userDto = new UserDto(1L, "user-abc-xyz", "Tom", "SE", "tom@gmail.com", "123456", "encrypted_123456", "email_token", true, null, List.of(addressDto));
 
         //act
         var user = userMapper.userDtoToUserEntity(userDto);
@@ -132,7 +132,7 @@ public class UserMapperTest {
     void testUserEntityToUserDto_ShouldReturnUserDto() {
         //arrange
         var address = new Address(1L, "Da Nang", "Vietnam", "123 Hai Phong str", "550000", BILLING);
-        var user = new User(1L, "user-abc-xyz", "Tom", "SE", "tom@gmail.com", "encrypted_123456", "email_token", true, List.of(address));
+        var user = new User(1L, "user-abc-xyz", "Tom", "SE", "tom@gmail.com", "encrypted_123456", "email_token", true, null, List.of(address));
 
         //act
         var userDto = userMapper.userEntityToUserDto(user);
@@ -154,7 +154,7 @@ public class UserMapperTest {
     void testUpdateUserEntityFromUserDto() {
         //arrange
         var address = new Address(1L, "Da Nang", "Vietnam", "123 Hai Phong str", "550000", BILLING);
-        var user = new User(1L, "user-id", "Tom", "SE", "tom@gmail.com", "encrypted_pw_123456", "email_verified_token", true, List.of(address));
+        var user = new User(1L, "user-id", "Tom", "SE", "tom@gmail.com", "encrypted_pw_123456", "email_verified_token", true, null, List.of(address));
         var userDto = new UserDto();
         userDto.setFirstName("Khanh");
         userDto.setLastName("Le");

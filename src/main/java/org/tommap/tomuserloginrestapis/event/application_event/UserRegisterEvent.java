@@ -9,12 +9,14 @@ import java.time.LocalDateTime;
 public class UserRegisterEvent extends ApplicationEvent {
     private final String email;
     private final String verificationToken;
+    private final long emailVerificationExpiry;
     private final String fullName;
 
-    public UserRegisterEvent(EventType eventType, LocalDateTime timestamp, String email, String verificationToken, String fullName) {
+    public UserRegisterEvent(EventType eventType, LocalDateTime timestamp, String email, String verificationToken, long emailVerificationExpiry, String fullName) {
         super(eventType, timestamp);
         this.email = email;
         this.verificationToken = verificationToken;
+        this.emailVerificationExpiry = emailVerificationExpiry;
         this.fullName = fullName;
     }
 }

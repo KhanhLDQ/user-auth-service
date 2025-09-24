@@ -33,3 +33,16 @@ logging:
 jwt:
   secret: ${JWT_SECRET:f27f63142c9dedc3ee9557f3278e0ca0fe70b2f51d003e55e6b92d6437e1ffb0} #hash value tom-secret-key
   expiration: ${JWT_EXPIRATION:3600000} #milisecond
+
+email:
+  verification:
+    expiry: 5 #minutes
+  sender: ${EMAIL_SENDER}
+
+aws:
+  access-key-id: ${AWS_ACCESS_KEY_ID}
+  secret-key: ${AWS_SECRET_KEY}
+  region: ${AWS_REGION}
+
+app:
+  base-url: ${APP_BASEURL}

@@ -1,6 +1,7 @@
 package org.tommap.tomuserloginrestapis.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,9 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements IUserService {
+    @Value("${email.verification.expiry}")
+    private long emailVerificationExpiry;
+
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final UserUtils userUtils;
@@ -46,7 +50,7 @@ public class UserServiceImpl implements IUserService {
 
         //set email verification token & expiry
         userDto.setEmailVerificationToken(emailUtils.generateEmailVerificationToken());
-        userDto.setEmailTokenExpiry(LocalDateTime.now().plusMinutes(5)); //should be configurable param instead of hard coding 5 minutes
+        userDto.setEmailTokenExpiry(LocalDateTime.now().plusMinutes(emailVerificationExpiry));
 
         var savedUser = userRepository.save(userMapper.userDtoToUserEntity(userDto));
 
@@ -151,7 +155,7 @@ public class UserServiceImpl implements IUserService {
         }
 
         user.setEmailVerificationToken(emailUtils.generateEmailVerificationToken());
-        user.setEmailTokenExpiry(LocalDateTime.now().plusMinutes(5));
+        user.setEmailTokenExpiry(LocalDateTime.now().plusMinutes(emailVerificationExpiry));
 
         userRepository.save(user);
     }
