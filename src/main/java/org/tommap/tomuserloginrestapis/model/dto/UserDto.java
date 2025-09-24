@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter @Setter
@@ -20,5 +21,6 @@ public class UserDto {
     private String encryptedPassword;
     private String emailVerificationToken;
     private boolean emailVerificationStatus = false;
+    private LocalDateTime emailTokenExpiry;
     private List<AddressDto> addresses;
 }

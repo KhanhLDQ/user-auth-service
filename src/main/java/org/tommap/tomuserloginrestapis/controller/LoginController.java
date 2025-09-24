@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.tommap.tomuserloginrestapis.exception.EmailVerificationRequiredException;
 import org.tommap.tomuserloginrestapis.model.request.UserLoginRequest;
 import org.tommap.tomuserloginrestapis.model.response.ApiResponse;
 import org.tommap.tomuserloginrestapis.model.response.UserLoginResponse;
@@ -34,8 +35,14 @@ public class LoginController {
             var authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
             );
-            var jwt = jwtUtils.generateJwtToken(authentication);
+
             var user = userService.getByUsername(authentication.getName());
+
+            if (!user.isEmailVerificationStatus()) {
+                throw new EmailVerificationRequiredException("Email verification required. Please verify your email to complete authentication!");
+            }
+
+            var jwt = jwtUtils.generateJwtToken(authentication);
 
             return ResponseEntity.status(OK)
                     .body(ApiResponse.ok(

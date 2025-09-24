@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.tommap.tomuserloginrestapis.exception.JwtAuthenticationEntryPoint;
 import org.tommap.tomuserloginrestapis.filter.JwtAuthFilter;
 
+import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -35,6 +36,8 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(POST, "/api/v1/users").permitAll() //sign-up endpoint
+                        .requestMatchers(GET, "/api/v1/users/email-verification").permitAll()
+                        .requestMatchers(POST, "/api/v1/users/resend-email-verification").permitAll()
                         .requestMatchers("/api/v1/login").permitAll()
                         .requestMatchers("/api/v1/users/**").authenticated()
                 );

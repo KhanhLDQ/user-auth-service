@@ -23,6 +23,7 @@ public interface UserMapper {
     @Mapping(target = "encryptedPassword", ignore = true)
     @Mapping(target = "emailVerificationToken", ignore = true)
     @Mapping(target = "emailVerificationStatus", ignore = true)
+    @Mapping(target = "emailTokenExpiry", ignore = true)
     UserDto createUserRequestToUserDto(CreateUserRequest request);
 
     @Mapping(target = "id", ignore = true)
@@ -50,6 +51,7 @@ public interface UserMapper {
     @Mapping(target = "encryptedPassword", ignore = true)
     @Mapping(target = "emailVerificationToken", ignore = true)
     @Mapping(target = "emailVerificationStatus", ignore = true)
+    @Mapping(target = "emailTokenExpiry", ignore = true)
     //TODO: fix temporarily
     @Mapping(target = "addresses", ignore = true)
     UserDto updateUserRequestToUserDto(UpdateUserRequest request);

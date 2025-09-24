@@ -14,4 +14,6 @@ public interface IUserService {
     void deleteUser(String userId);
     Page<UserDto> getUsers(int page, int size, String sortBy, String sortDir);
     List<AddressDto> getUserAddresses(String userId);
+    boolean verifyEmailToken(String token);
+    void resendEmailVerification(String email);
 }

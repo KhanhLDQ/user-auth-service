@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -45,6 +46,8 @@ public class User {
 
     @Column(nullable = false)
     private boolean emailVerificationStatus = false;
+
+    private LocalDateTime emailTokenExpiry;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "user_id")

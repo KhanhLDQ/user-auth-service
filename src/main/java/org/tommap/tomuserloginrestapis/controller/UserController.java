@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.tommap.tomuserloginrestapis.mapper.UserMapper;
 import org.tommap.tomuserloginrestapis.model.dto.UserDto;
 import org.tommap.tomuserloginrestapis.model.request.CreateUserRequest;
+import org.tommap.tomuserloginrestapis.model.request.ResendEmailVerificationRequest;
 import org.tommap.tomuserloginrestapis.model.request.UpdateUserRequest;
 import org.tommap.tomuserloginrestapis.model.response.ApiResponse;
 import org.tommap.tomuserloginrestapis.model.response.PageResult;
@@ -25,6 +26,7 @@ import org.tommap.tomuserloginrestapis.service.IUserService;
 
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.tommap.tomuserloginrestapis.model.response.PageResult.PageInfo;
 
@@ -90,7 +92,9 @@ public class UserController {
                 .map(userMapper::addressDtoToResponse)
                 .toList();
 
-        return ResponseEntity.ok(ApiResponse.ok("Get user addresses successfully", addressRests));
+        return ResponseEntity.ok(
+                ApiResponse.ok("Get user addresses successfully", addressRests)
+        );
     }
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
@@ -114,7 +118,9 @@ public class UserController {
         var userDto = userService.updateUser(userId, userMapper.updateUserRequestToUserDto(request));
         var userRest = userMapper.userDtoToResponse(userDto);
 
-        return ResponseEntity.ok(ApiResponse.ok("User updated successfully", userRest));
+        return ResponseEntity.ok(
+                ApiResponse.ok("User updated successfully", userRest)
+        );
     }
 
     @DeleteMapping("/{userId}")
@@ -123,6 +129,33 @@ public class UserController {
     ) {
         userService.deleteUser(userId);
 
-        return ResponseEntity.ok(ApiResponse.ok("User deleted successfully", null));
+        return ResponseEntity.ok(
+                ApiResponse.ok("User deleted successfully", null)
+        );
+    }
+
+    @GetMapping("/email-verification")
+    public ResponseEntity<ApiResponse<Void>> verifyEmailToken(
+        @RequestParam("token") String token
+    ) {
+        var isEmailVerified = userService.verifyEmailToken(token);
+
+        if (isEmailVerified) {
+            return ResponseEntity.ok(ApiResponse.ok("Email verified successfully", null));
+        }
+
+        return ResponseEntity.badRequest()
+                .body(ApiResponse.error(BAD_REQUEST.value(), "Invalid or expired verification token"));
+    }
+
+    @PostMapping("/resend-email-verification")
+    public ResponseEntity<ApiResponse<Void>> resendEmailVerification(
+        @RequestBody @Valid ResendEmailVerificationRequest request
+    ) {
+        userService.resendEmailVerification(request.getEmail());
+
+        return ResponseEntity.ok(
+                ApiResponse.ok("Resend email verification successfully", null)
+        );
     }
 }
