@@ -76,6 +76,6 @@ public class EmailServiceImpl implements IEmailService {
     }
 
     private String buildVerificationLink(String verificationToken) {
-        return String.format("%s/email-verification?token=%s", baseUrl, verificationToken);
+        return String.format("%s/api/v1/users/email-verification?token=%s", baseUrl, verificationToken);
     }
 }

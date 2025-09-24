@@ -19,7 +19,7 @@ public class AwsSesConfig {
 
     @Bean
     public SesClient sesClient() {
-        log.info("Init SesClient using properties: {}", awsProperties);
+        log.info("Init SesClient using properties: {}", awsProperties); //only debugging - should not log credentials to console
 
         try {
             AwsCredentialsProvider awsCredentialsProvider = StaticCredentialsProvider.create(

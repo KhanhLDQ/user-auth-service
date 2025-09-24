@@ -9,6 +9,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.tommap.tomuserloginrestapis.event.EventType;
+import org.tommap.tomuserloginrestapis.event.application_event.ApplicationEvent;
+import org.tommap.tomuserloginrestapis.event.application_event.UserRegisterEvent;
+import org.tommap.tomuserloginrestapis.event.publisher.EventPublisher;
 import org.tommap.tomuserloginrestapis.exception.ResourceAlreadyExistedException;
 import org.tommap.tomuserloginrestapis.exception.ResourceNotFoundException;
 import org.tommap.tomuserloginrestapis.mapper.UserMapper;
@@ -37,6 +41,7 @@ public class UserServiceImpl implements IUserService {
     private final UserUtils userUtils;
     private final PasswordEncoder passwordEncoder;
     private final EmailUtils emailUtils;
+    private final EventPublisher<ApplicationEvent> eventPublisher;
 
     @Override
     @Transactional
@@ -54,7 +59,16 @@ public class UserServiceImpl implements IUserService {
 
         var savedUser = userRepository.save(userMapper.userDtoToUserEntity(userDto));
 
-        //TODO: implement send email function -> publish application event -> listen to that event and send email -> not send email here to block more time
+        var userRegisterEvent = UserRegisterEvent.builder()
+                .eventType(EventType.USER_REGISTERED)
+                .timestamp(LocalDateTime.now())
+                .email(savedUser.getEmail())
+                .verificationToken(savedUser.getEmailVerificationToken())
+                .emailVerificationExpiry(emailVerificationExpiry)
+                .fullName(String.format("%s %s", savedUser.getFirstName(), savedUser.getLastName()))
+                .build();
+
+        eventPublisher.publish(userRegisterEvent);
 
         return userMapper.userEntityToUserDto(savedUser);
     }

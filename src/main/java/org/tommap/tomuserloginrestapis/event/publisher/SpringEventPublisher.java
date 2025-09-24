@@ -14,7 +14,7 @@ public class SpringEventPublisher implements EventPublisher<ApplicationEvent> {
 
     @Override
     public void publish(ApplicationEvent event) {
-        log.info("publishing event {}", event);
+        log.info("publishing event {}", event.getClass().getSimpleName());
 
         eventPublisher.publishEvent(event);
     }
