@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tommap.tomuserloginrestapis.event.EventType;
 import org.tommap.tomuserloginrestapis.event.application_event.ApplicationEvent;
+import org.tommap.tomuserloginrestapis.event.application_event.ResendEmailEvent;
 import org.tommap.tomuserloginrestapis.event.application_event.UserRegisterEvent;
 import org.tommap.tomuserloginrestapis.event.publisher.EventPublisher;
 import org.tommap.tomuserloginrestapis.exception.ResourceAlreadyExistedException;
@@ -170,8 +171,18 @@ public class UserServiceImpl implements IUserService {
 
         user.setEmailVerificationToken(emailUtils.generateEmailVerificationToken());
         user.setEmailTokenExpiry(LocalDateTime.now().plusMinutes(emailVerificationExpiry));
+        User updatedUser = userRepository.save(user);
 
-        userRepository.save(user);
+        var resendEmailEvent = ResendEmailEvent.builder()
+                .eventType(EventType.RESEND_EMAIL)
+                .timestamp(LocalDateTime.now())
+                .email(updatedUser.getEmail())
+                .verificationToken(updatedUser.getEmailVerificationToken())
+                .emailVerificationExpiry(emailVerificationExpiry)
+                .fullName(String.format("%s %s", updatedUser.getFirstName(), updatedUser.getLastName()))
+                .build();
+
+        eventPublisher.publish(resendEmailEvent);
     }
 
     private void clearUserToken(User user) {
