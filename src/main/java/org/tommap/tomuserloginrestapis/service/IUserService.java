@@ -16,4 +16,6 @@ public interface IUserService {
     List<AddressDto> getUserAddresses(String userId);
     boolean verifyEmailToken(String token);
     void resendEmailVerification(String email);
+    void resetPasswordRequest(String email);
+    void resetPassword(String emailToken, String newPassword);
 }

@@ -56,4 +56,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ApiResponse<Void> handleIllegalArgumentException(IllegalArgumentException ex) {
         return ApiResponse.error(BAD_REQUEST.value(), ex.getMessage());
     }
+
+    @ExceptionHandler(EmailVerificationTokenExpiredException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ApiResponse<Void> handleEmailVerificationTokenExpiredException(EmailVerificationTokenExpiredException ex) {
+        return ApiResponse.error(BAD_REQUEST.value(), ex.getMessage());
+    }
 }

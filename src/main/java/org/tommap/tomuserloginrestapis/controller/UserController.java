@@ -18,6 +18,8 @@ import org.tommap.tomuserloginrestapis.mapper.UserMapper;
 import org.tommap.tomuserloginrestapis.model.dto.UserDto;
 import org.tommap.tomuserloginrestapis.model.request.CreateUserRequest;
 import org.tommap.tomuserloginrestapis.model.request.ResendEmailVerificationRequest;
+import org.tommap.tomuserloginrestapis.model.request.ResetPassword;
+import org.tommap.tomuserloginrestapis.model.request.ResetPasswordRequest;
 import org.tommap.tomuserloginrestapis.model.request.UpdateUserRequest;
 import org.tommap.tomuserloginrestapis.model.response.ApiResponse;
 import org.tommap.tomuserloginrestapis.model.response.PageResult;
@@ -148,7 +150,10 @@ public class UserController {
                 .body(ApiResponse.error(BAD_REQUEST.value(), "Invalid or expired verification token"));
     }
 
-    @PostMapping("/resend-email-verification")
+    @PostMapping(
+        path = "/resend-email-verification",
+        consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
+    )
     public ResponseEntity<ApiResponse<Void>> resendEmailVerification(
         @RequestBody @Valid ResendEmailVerificationRequest request
     ) {
@@ -156,6 +161,34 @@ public class UserController {
 
         return ResponseEntity.ok(
                 ApiResponse.ok("Resend email verification successfully", null)
+        );
+    }
+
+    @PostMapping(
+        path = "/reset-password-request",
+        consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
+    )
+    public ResponseEntity<ApiResponse<Void>> resetPasswordRequest(
+        @RequestBody @Valid ResetPasswordRequest request
+    ) {
+        userService.resetPasswordRequest(request.getEmail());
+
+        return ResponseEntity.ok(
+                ApiResponse.ok("Reset password request successfully", null)
+        );
+    }
+
+    @PostMapping(
+        path = "reset-password",
+        consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
+    )
+    public ResponseEntity<ApiResponse<Void>> resetPassword(
+        @RequestBody @Valid ResetPassword request
+    ) {
+        userService.resetPassword(request.getToken(), request.getNewPassword());
+
+        return ResponseEntity.ok(
+                ApiResponse.ok("Reset password successfully", null)
         );
     }
 }

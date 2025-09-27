@@ -38,6 +38,8 @@ public class SecurityConfig {
                         .requestMatchers(POST, "/api/v1/users").permitAll() //sign-up endpoint
                         .requestMatchers(GET, "/api/v1/users/email-verification").permitAll()
                         .requestMatchers(POST, "/api/v1/users/resend-email-verification").permitAll()
+                        .requestMatchers(POST, "/api/v1/users/reset-password-request").permitAll()
+                        .requestMatchers(POST, "/api/v1/users/reset-password").permitAll()
                         .requestMatchers("/api/v1/login").permitAll()
                         .requestMatchers("/api/v1/users/**").authenticated()
                 );

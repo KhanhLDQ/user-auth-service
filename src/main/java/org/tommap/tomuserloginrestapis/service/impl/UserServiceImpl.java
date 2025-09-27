@@ -11,9 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tommap.tomuserloginrestapis.event.EventType;
 import org.tommap.tomuserloginrestapis.event.application_event.ApplicationEvent;
+import org.tommap.tomuserloginrestapis.event.application_event.PasswordResetEvent;
 import org.tommap.tomuserloginrestapis.event.application_event.ResendEmailEvent;
 import org.tommap.tomuserloginrestapis.event.application_event.UserRegisterEvent;
 import org.tommap.tomuserloginrestapis.event.publisher.EventPublisher;
+import org.tommap.tomuserloginrestapis.exception.EmailVerificationTokenExpiredException;
 import org.tommap.tomuserloginrestapis.exception.ResourceAlreadyExistedException;
 import org.tommap.tomuserloginrestapis.exception.ResourceNotFoundException;
 import org.tommap.tomuserloginrestapis.mapper.UserMapper;
@@ -21,6 +23,7 @@ import org.tommap.tomuserloginrestapis.model.dto.AddressDto;
 import org.tommap.tomuserloginrestapis.model.dto.UserDto;
 import org.tommap.tomuserloginrestapis.model.entity.User;
 import org.tommap.tomuserloginrestapis.repository.UserRepository;
+import org.tommap.tomuserloginrestapis.service.ITransactionHandler;
 import org.tommap.tomuserloginrestapis.service.IUserService;
 import org.tommap.tomuserloginrestapis.shared.EmailUtils;
 import org.tommap.tomuserloginrestapis.shared.UserUtils;
@@ -43,6 +46,7 @@ public class UserServiceImpl implements IUserService {
     private final PasswordEncoder passwordEncoder;
     private final EmailUtils emailUtils;
     private final EventPublisher<ApplicationEvent> eventPublisher;
+    private final ITransactionHandler transactionHandler;
 
     @Override
     @Transactional
@@ -183,6 +187,52 @@ public class UserServiceImpl implements IUserService {
                 .build();
 
         eventPublisher.publish(resendEmailEvent);
+    }
+
+    @Override
+    @Transactional
+    public void resetPasswordRequest(String email) {
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("User %s not found", email)));
+
+        user.setEmailVerificationToken(emailUtils.generateEmailVerificationToken());
+        user.setEmailTokenExpiry(LocalDateTime.now().plusMinutes(emailVerificationExpiry));
+        var updatedUser = userRepository.save(user);
+
+        var passwordResetEvent = PasswordResetEvent.builder()
+                .eventType(EventType.PASSWORD_RESET)
+                .timestamp(LocalDateTime.now())
+                .email(email)
+                .verificationToken(updatedUser.getEmailVerificationToken())
+                .emailVerificationExpiry(emailVerificationExpiry)
+                .fullName(String.format("%s %s", updatedUser.getFirstName(), updatedUser.getLastName()))
+                .build();
+
+        eventPublisher.publish(passwordResetEvent);
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(String emailToken, String newPassword) {
+        var user = userRepository.findByEmailVerificationToken(emailToken)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("User with token %s not found", emailToken)));
+
+        if (null != user.getEmailTokenExpiry()
+                && LocalDateTime.now().isAfter(user.getEmailTokenExpiry())
+        ) {
+            transactionHandler.runInNewTransaction(() -> {
+                clearUserToken(user);
+                userRepository.save(user);
+
+                return null;
+            });
+
+            throw new EmailVerificationTokenExpiredException("Email verification token already expired!"); //transaction rollback -> require new to clear token
+        }
+
+        clearUserToken(user);
+        user.setEncryptedPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
     private void clearUserToken(User user) {
