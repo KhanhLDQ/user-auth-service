@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
@@ -16,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 @NoArgsConstructor
 @Validated
 @ToString
+@Profile("!test")
 public class AwsProperties {
     @NotBlank(message = "access-key-id should be required & not blank!")
     private String accessKeyId;

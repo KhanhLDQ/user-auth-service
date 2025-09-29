@@ -179,7 +179,7 @@ public class UserController {
     }
 
     @PostMapping(
-        path = "reset-password",
+        path = "/reset-password",
         consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
     )
     public ResponseEntity<ApiResponse<Void>> resetPassword(

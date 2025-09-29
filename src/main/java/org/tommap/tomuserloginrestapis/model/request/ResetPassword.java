@@ -1,6 +1,7 @@
 package org.tommap.tomuserloginrestapis.model.request;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import org.tommap.tomuserloginrestapis.validation.SecuredPassword;
 
 @Getter @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @PasswordMatch(newPassword = "newPassword", confirmedPassword = "confirmedPassword")
 public class ResetPassword {
     @NotNull(message = "token should be required!")

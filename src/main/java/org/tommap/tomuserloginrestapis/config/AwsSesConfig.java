@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.tommap.tomuserloginrestapis.exception.AwsSesInitException;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
@@ -14,6 +15,7 @@ import software.amazon.awssdk.services.ses.SesClient;
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
+@Profile("!test")
 public class AwsSesConfig {
     private final AwsProperties awsProperties;
 
