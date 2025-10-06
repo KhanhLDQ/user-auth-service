@@ -188,4 +188,58 @@ public class UserRepositoryTest {
                 .extracting("firstName", "lastName")
                 .containsExactly(firstName, lastName);
     }
+
+    @Test
+    void testFindByFirstNameAndLastNamePatternJPQL() {
+        //arrange
+        String firstName = "Tom";
+        String lastName = "Eng";
+
+        //act
+        List<User> users = userRepository.findByFirstNameAndLastNamePatternJPQL(firstName, lastName);
+
+        //assert
+        assertThat(users).hasSize(2);
+        assertThat(users)
+                .extracting("userId", "firstName", "lastName", "email")
+                .containsExactlyInAnyOrder(
+                        tuple("user-1", "Tom-1", "Engineer-1", "tom-1@gmail.com"),
+                        tuple("user-2", "Tom-2", "Engineer-2", "tom-2@gmail.com")
+                );
+    }
+
+    @Test
+    void testFindByFirstName() {
+        //arrange
+        String firstName = "Tom-1";
+
+        //act
+        List<UserRepository.UserBasicInfo> users = userRepository.findByFirstName(firstName);
+
+        //assert
+        assertThat(users).hasSize(1);
+        assertThat(users.get(0))
+                .extracting("userId", "firstName", "lastName", "email")
+                .containsExactly("user-1", "Tom-1", "Engineer-1", "tom-1@gmail.com");
+    }
+
+    @Test
+    void testUpdateFirstNameAndLastNameJPQL() {
+        //arrange
+        String firstName = "Khanh";
+        String lastName = "Le";
+        String userId = "user-1";
+
+        //act
+        int affectedRows = userRepository.updateFirstNameAndLastNameJPQL(userId, firstName, lastName);
+
+        //assert
+        assertThat(affectedRows).isEqualTo(1);
+
+        Optional<User> userOptional = userRepository.findByUserId(userId);
+        assertThat(userOptional).isPresent();
+        assertThat(userOptional.get())
+                .extracting("firstName", "lastName")
+                .containsExactly(firstName, lastName);
+    }
 }

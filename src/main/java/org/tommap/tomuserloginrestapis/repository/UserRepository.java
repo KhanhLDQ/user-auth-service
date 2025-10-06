@@ -71,4 +71,25 @@ public interface UserRepository extends JpaRepository<User, Long> {
         @Param("firstName") String firstName,
         @Param("lastName") String lastName
     );
+
+    @Query("SELECT u FROM User u WHERE u.firstName LIKE %:firstName% AND u.lastName LIKE %:lastName%") //JPQL
+    List<User> findByFirstNameAndLastNamePatternJPQL(
+        @Param("firstName") String firstName,
+        @Param("lastName") String lastName
+    );
+
+    @Query("SELECT u.userId AS userId, u.firstName AS firstName, u.lastName AS lastName, u.email AS email FROM User u WHERE u.firstName = :firstName") //select specific columns
+    List<UserBasicInfo> findByFirstName(@Param("firstName") String firstName);
+
+    @Transactional
+    @Modifying(
+        clearAutomatically = true,
+        flushAutomatically = true
+    )
+    @Query("UPDATE User u SET u.firstName = :firstName, u.lastName = :lastName WHERE u.userId = :userId")
+    int updateFirstNameAndLastNameJPQL(
+        @Param("userId") String userId,
+        @Param("firstName") String firstName,
+        @Param("lastName") String lastName
+    );
 }
