@@ -46,3 +46,6 @@ aws:
 
 app:
   base-url: ${APP_BASEURL}
+
+cors:
+  allowed-origins: ${ALLOWED_ORIGINS:http://localhost:4200,http://localhost:3000}

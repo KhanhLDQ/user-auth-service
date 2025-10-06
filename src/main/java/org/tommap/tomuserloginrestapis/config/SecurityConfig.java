@@ -1,5 +1,6 @@
 package org.tommap.tomuserloginrestapis.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,8 +11,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.tommap.tomuserloginrestapis.exception.JwtAuthenticationEntryPoint;
 import org.tommap.tomuserloginrestapis.filter.JwtAuthFilter;
+
+import java.util.List;
 
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
@@ -19,6 +25,9 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 
 @Configuration
 public class SecurityConfig {
+    @Value("${cors.allowed-origins}")
+    private List<String> allowedOrigins;
+
     @Bean
     public SecurityFilterChain filterChain(
             HttpSecurity httpSecurity,
@@ -26,6 +35,9 @@ public class SecurityConfig {
             JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint
     ) throws Exception {
         httpSecurity
+                .cors(corsCustomizer ->
+                        corsCustomizer.configurationSource(corsConfigurationSource())
+                )
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sessionConfig -> sessionConfig
                         .sessionCreationPolicy(STATELESS)
@@ -60,5 +72,23 @@ public class SecurityConfig {
         var authProvider = new TomDaoAuthenticationProvider(userDetailsManager, passwordEncoder);
 
         return new ProviderManager(authProvider);
+    }
+
+    /*
+        - when allowCredentials is true -> allowedOrigins cannot contain special value '*'
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(allowedOrigins); //should configure specific origins
+        config.setAllowedMethods(List.of("*")); //allow all HTTP methods
+        config.setAllowedHeaders(List.of("*")); //allow all HTTP headers
+        config.setAllowCredentials(true); //allow to include credentials (JWT, cookie, ...)
+        config.setMaxAge(3600L); //cache preflight response for an hour per browser
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config); //apply CORS config to all endpoints
+
+        return source;
     }
 }

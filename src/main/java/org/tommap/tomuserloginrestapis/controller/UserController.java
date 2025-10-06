@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,6 +45,7 @@ import static org.tommap.tomuserloginrestapis.model.response.PageResult.PageInfo
     produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE} //restrict to JSON/XML only - no other formats
 )
 @RequiredArgsConstructor
+//@CrossOrigin(origins = "*") //allow any domain - can be configured on top of a class or method
 public class UserController {
     private final IUserService userService;
     private final UserMapper userMapper;
