@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 )
                 .authorizeHttpRequests(request -> request
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(POST, "/api/v1/users").permitAll() //sign-up endpoint
                         .requestMatchers(GET, "/api/v1/users/email-verification").permitAll()
                         .requestMatchers(POST, "/api/v1/users/resend-email-verification").permitAll()
