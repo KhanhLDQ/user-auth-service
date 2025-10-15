@@ -33,6 +33,7 @@ public interface UserMapper {
 
     UserRest.AddressRest addressDtoToResponse(AddressDto addressDto);
 
+    @Mapping(target = "roles", ignore = true)
     User userDtoToUserEntity(UserDto userDto);
 
     @Mapping(target = "type", expression = "java(AddressType.fromValue(addressDto.getType()))")
@@ -58,5 +59,6 @@ public interface UserMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = IGNORE)
     @Mapping(target = "emailVerificationStatus", ignore = true)
+    @Mapping(target = "roles", ignore = true)
     void updateUserEntityFromUserDto(UserDto userDto, @MappingTarget User user);
 }

@@ -10,17 +10,20 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.tommap.tomuserloginrestapis.exception.JwtAccessDeniedHandler;
 import org.tommap.tomuserloginrestapis.exception.JwtAuthenticationEntryPoint;
 import org.tommap.tomuserloginrestapis.filter.JwtAuthFilter;
 
 import java.util.List;
 
+import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
@@ -32,7 +35,8 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(
             HttpSecurity httpSecurity,
             JwtAuthFilter jwtAuthFilter,
-            JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint
+            JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+            JwtAccessDeniedHandler jwtAccessDeniedHandler
     ) throws Exception {
         httpSecurity
                 .cors(corsCustomizer ->
@@ -42,11 +46,13 @@ public class SecurityConfig {
                 .sessionManagement(sessionConfig -> sessionConfig
                         .sessionCreationPolicy(STATELESS)
                 )
-                .addFilterBefore(jwtAuthFilter, BasicAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ehc -> ehc
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(jwtAccessDeniedHandler)
                 )
                 .authorizeHttpRequests(request -> request
+                        //public endpoints
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(POST, "/api/v1/users").permitAll() //sign-up endpoint
                         .requestMatchers(GET, "/api/v1/users/email-verification").permitAll()
@@ -54,7 +60,13 @@ public class SecurityConfig {
                         .requestMatchers(POST, "/api/v1/users/reset-password-request").permitAll()
                         .requestMatchers(POST, "/api/v1/users/reset-password").permitAll()
                         .requestMatchers("/api/v1/login").permitAll()
-                        .requestMatchers("/api/v1/users/**").authenticated()
+                        //admin endpoints
+                        .requestMatchers(DELETE, "/api/v1/users/**").hasRole("ADMIN") //spring automatically add prefix ROLE_
+                        .requestMatchers(PUT, "/api/v1/users/**").hasRole("ADMIN")
+                        //user endpoints
+                        .requestMatchers(GET, "/api/v1/users/**").hasAnyRole("ADMIN", "USER")
+                        //other endpoints
+                        .anyRequest().authenticated()
                 );
 
         return httpSecurity.build();

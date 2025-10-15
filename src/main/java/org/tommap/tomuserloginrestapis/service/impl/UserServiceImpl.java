@@ -62,7 +62,7 @@ public class UserServiceImpl implements IUserService {
         userDto.setEmailVerificationToken(emailUtils.generateEmailVerificationToken());
         userDto.setEmailTokenExpiry(LocalDateTime.now().plusMinutes(emailVerificationExpiry));
 
-        var savedUser = userRepository.save(userMapper.userDtoToUserEntity(userDto));
+        var savedUser = userRepository.save(userMapper.userDtoToUserEntity(userDto)); //set to ROLE_USER
 
         var userRegisterEvent = UserRegisterEvent.builder()
                 .eventType(EventType.USER_REGISTERED)
